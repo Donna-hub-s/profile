@@ -1,0 +1,36 @@
+name: profile
+version: 1.0.0
+author: donna
+description: >
+  Profil et préférences utilisateur — nom affiché, avatar, fuseau horaire,
+  langue, préférences chat (provider/voix TTS/recherche web par défaut) et
+  notifications de rappel. Séparé de xauth (identité/auth stricte) : xauth
+  garde xauth_users minimal (email, mot de passe, MFA), ce plugin porte tout
+  ce qui est éditable par l'utilisateur lui-même, sans toucher à un plugin
+  "trusted" critique pour l'authentification.
+
+execution_mode: trusted
+entry_point: src/main.py
+framework_version: ">=2.0.0"
+
+requires:
+  - name: auth
+    version: ">=1.0.0,<2.0.0"
+
+allowed_imports:
+  - fastapi
+  - typing
+  - datetime
+  - uuid
+  - sqlalchemy
+  - pydantic
+  - zoneinfo
+
+resources:
+  timeout_seconds: 10
+  max_memory_mb: 128
+
+runtime:
+  health_check:
+    enabled: true
+    interval_seconds: 60
