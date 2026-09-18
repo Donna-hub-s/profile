@@ -26,6 +26,16 @@ allowed_imports:
   - pydantic
   - zoneinfo
 
+# ── Permissions inter-plugins ────────────────────────────────────────────────
+# Vide = deny_all côté PermissionEngine (même piège que xauth, voir son
+# plugin.yaml) : sans ce bloc, call_plugin("profile", "profile.get", ...)
+# depuis chat (préférences timezone/voix TTS/recherche web) est refusé en
+# silence, repli permanent sur les valeurs par défaut.
+permissions:
+  - resource: "profile.*"
+    actions: ["*"]
+    effect: "allow"
+
 resources:
   timeout_seconds: 10
   max_memory_mb: 128
