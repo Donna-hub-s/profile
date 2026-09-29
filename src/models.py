@@ -73,5 +73,25 @@ class Profile(Base):
     # effet tant que ce champ est vide.
     whatsapp_notify_number: Mapped[str | None] = mapped_column(String(32), nullable=True)
 
+    # ── Affichage ────────────────────────────────────────────
+    theme: Mapped[str] = mapped_column(String(16), default="system")
+    date_format: Mapped[str] = mapped_column(String(16), default="auto")
+    measurement_system: Mapped[str] = mapped_column(String(16), default="metric")
+
+    # ── Skills activables/désactivables ──────────────────────
+    # Toutes à True : une skill désactivée retire des tools au modèle
+    # (_SKILL_TOOLS côté chat). Un profil existant ne doit perdre aucun outil
+    # au déploiement, donc jamais de valeur False par défaut ici.
+    # Ce sont des PRÉFÉRENCES, pas des permissions : elles ne peuvent
+    # qu'enlever, jamais accorder (les droits viennent de xauth).
+    # Clés alignées sur _SKILL_TOOLS (backend/app/chat/src/tools.py).
+    enable_web_search: Mapped[bool] = mapped_column(Boolean, default=True)
+    enable_sub_agents: Mapped[bool] = mapped_column(Boolean, default=True)
+    enable_reminders: Mapped[bool] = mapped_column(Boolean, default=True)
+    enable_memory: Mapped[bool] = mapped_column(Boolean, default=True)
+    enable_email_calendar: Mapped[bool] = mapped_column(Boolean, default=True)
+    enable_drive: Mapped[bool] = mapped_column(Boolean, default=True)
+    enable_create_document: Mapped[bool] = mapped_column(Boolean, default=True)
+
     created_at: Mapped[datetime] = mapped_column(DateTime, default=_now)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=_now, onupdate=_now)

@@ -26,6 +26,16 @@ def _to_out(profile: Profile) -> ProfileOut:
         notify_reminders_email=profile.notify_reminders_email,
         notify_reminders_whatsapp=profile.notify_reminders_whatsapp,
         whatsapp_notify_number=profile.whatsapp_notify_number,
+        theme=profile.theme,
+        date_format=profile.date_format,
+        measurement_system=profile.measurement_system,
+        enable_web_search=profile.enable_web_search,
+        enable_sub_agents=profile.enable_sub_agents,
+        enable_reminders=profile.enable_reminders,
+        enable_memory=profile.enable_memory,
+        enable_email_calendar=profile.enable_email_calendar,
+        enable_drive=profile.enable_drive,
+        enable_create_document=profile.enable_create_document,
         created_at=profile.created_at,
         updated_at=profile.updated_at,
     )
@@ -78,6 +88,16 @@ def profile_router(db) -> APIRouter:
                 "notify_reminders_email",
                 "notify_reminders_whatsapp",
                 "whatsapp_notify_number",
+                "theme",
+                "date_format",
+                "measurement_system",
+                "enable_web_search",
+                "enable_sub_agents",
+                "enable_reminders",
+                "enable_memory",
+                "enable_email_calendar",
+                "enable_drive",
+                "enable_create_document",
             ):
                 value = getattr(body, field)
                 if value is not None:
