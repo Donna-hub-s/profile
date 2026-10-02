@@ -6,6 +6,7 @@ from sqlalchemy import select
 from xcore.sdk import AutoDispatchMixin, action, error, ok, validate_payload
 
 from .models import Profile
+from .skills_store import current_skills
 
 GET_PROFILE_SCHEMA: TypedDict = {  # type: ignore
     "tenant_id": (str, ...),
@@ -44,6 +45,7 @@ class IPCCommands(AutoDispatchMixin):
                     notify_reminders_email=False,
                     notify_reminders_whatsapp=False,
                     whatsapp_notify_number=None,
+                    skills={},
                 )
             return ok(
                 timezone=profile.timezone,
@@ -54,6 +56,9 @@ class IPCCommands(AutoDispatchMixin):
                 notify_reminders_email=profile.notify_reminders_email,
                 notify_reminders_whatsapp=profile.notify_reminders_whatsapp,
                 whatsapp_notify_number=profile.whatsapp_notify_number,
+                # Réglages de skills : sans eux, le chat ne voyait JAMAIS une skill désactivée par
+                # l'utilisateur (le filtre d'outils retombait sur « tout activé »).
+                skills=current_skills(profile),
             )
         except Exception as exc:
             return error(f"Lecture du profil échouée : {exc}", code="error")

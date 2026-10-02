@@ -3,7 +3,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import Boolean, DateTime, String, UniqueConstraint
+from sqlalchemy import JSON, Boolean, DateTime, String, UniqueConstraint
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
@@ -79,12 +79,16 @@ class Profile(Base):
     measurement_system: Mapped[str] = mapped_column(String(16), default="metric")
 
     # ── Skills activables/désactivables ──────────────────────
-    # Toutes à True : une skill désactivée retire des tools au modèle
-    # (_SKILL_TOOLS côté chat). Un profil existant ne doit perdre aucun outil
-    # au déploiement, donc jamais de valeur False par défaut ici.
-    # Ce sont des PRÉFÉRENCES, pas des permissions : elles ne peuvent
-    # qu'enlever, jamais accorder (les droits viennent de xauth).
-    # Clés alignées sur _SKILL_TOOLS (backend/app/chat/src/tools.py).
+    # `skills` : réglages de l'utilisateur par skill, {identifiant: bool}. Le profil ne connaît PAS le
+    # catalogue (backend/app/chat/src/skills.py) : une skill absente de ce dict prend sa valeur par
+    # défaut côté chat. Ajouter une skill n'exige donc aucune colonne. Une skill désactivée retire ses
+    # tools au modèle ; ce sont des PRÉFÉRENCES, pas des permissions (elles ne peuvent qu'enlever,
+    # jamais accorder : les droits viennent de xauth).
+    skills: Mapped[dict] = mapped_column(JSON, default=dict)
+
+    # OBSOLÈTES : une colonne par skill, remplacées par `skills`. Jamais écrites ni lues par l'API ;
+    # conservées pour la migration (migrate_legacy_skill_flags : un flag à False devient un réglage
+    # `skills[<id>] = False`) et pour ne pas supprimer de données en prod.
     enable_web_search: Mapped[bool] = mapped_column(Boolean, default=True)
     enable_sub_agents: Mapped[bool] = mapped_column(Boolean, default=True)
     enable_reminders: Mapped[bool] = mapped_column(Boolean, default=True)

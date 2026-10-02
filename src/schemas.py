@@ -2,7 +2,9 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
+
+from .skills_store import MAX_SKILL_SETTINGS, SKILL_ID_RE
 
 
 class ProfileOut(BaseModel):
@@ -19,15 +21,9 @@ class ProfileOut(BaseModel):
     theme: str = "system"
     date_format: str = "auto"
     measurement_system: str = "metric"
-    # Skills activables — clés alignées sur _SKILL_TOOLS (chat/src/tools.py).
-    # Préférences et non permissions : ne peuvent qu'enlever des outils.
-    enable_web_search: bool = True
-    enable_sub_agents: bool = True
-    enable_reminders: bool = True
-    enable_memory: bool = True
-    enable_email_calendar: bool = True
-    enable_drive: bool = True
-    enable_create_document: bool = True
+    # Réglages par skill ({identifiant: bool}, catalogue : chat/src/skills.py). Une skill absente
+    # garde sa valeur par défaut. Préférences et non permissions : ne peuvent qu'enlever des outils.
+    skills: dict[str, bool] = Field(default_factory=dict)
     created_at: datetime
     updated_at: datetime
 
@@ -46,10 +42,17 @@ class ProfileUpdateRequest(BaseModel):
     theme: str | None = None
     date_format: str | None = None
     measurement_system: str | None = None
-    enable_web_search: bool | None = None
-    enable_sub_agents: bool | None = None
-    enable_reminders: bool | None = None
-    enable_memory: bool | None = None
-    enable_email_calendar: bool | None = None
-    enable_drive: bool | None = None
-    enable_create_document: bool | None = None
+    # Fusionné avec les réglages existants (un PATCH ne touche que les skills qu'il nomme).
+    skills: dict[str, bool] | None = None
+
+    @field_validator("skills")
+    @classmethod
+    def _valid_skills(cls, value: dict[str, bool] | None) -> dict[str, bool] | None:
+        if value is None:
+            return value
+        if len(value) > MAX_SKILL_SETTINGS:
+            raise ValueError(f"{MAX_SKILL_SETTINGS} réglages de skill maximum.")
+        for skill_id in value:
+            if not SKILL_ID_RE.match(skill_id):
+                raise ValueError(f"Identifiant de skill invalide : {skill_id!r}.")
+        return value

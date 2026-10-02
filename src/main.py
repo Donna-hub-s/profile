@@ -7,6 +7,7 @@ from extensions.db_columns import ensure_columns
 from .ipc import IPCCommands
 from .models import Base
 from .routes.profile_routes import profile_router
+from .skills_store import migrate_legacy_skill_flags
 
 logger = get_logger("profile.plugin")
 
@@ -34,6 +35,8 @@ _ADDED_COLUMNS: tuple[tuple[str, str, str], ...] = (
     ("enable_email_calendar", "BOOLEAN NOT NULL DEFAULT 1", "BOOLEAN NOT NULL DEFAULT TRUE"),
     ("enable_drive", "BOOLEAN NOT NULL DEFAULT 1", "BOOLEAN NOT NULL DEFAULT TRUE"),
     ("enable_create_document", "BOOLEAN NOT NULL DEFAULT 1", "BOOLEAN NOT NULL DEFAULT TRUE"),
+    # Réglages par skill (remplace les colonnes enable_*). '{}' = tout par défaut.
+    ("skills", "JSON NOT NULL DEFAULT '{}'", "JSON NOT NULL DEFAULT '{}'"),
 )
 
 
@@ -48,6 +51,13 @@ class Plugin(IPCCommands, AutoDispatchMixin, TrustedBase):
         async with self._db.engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
             await _ensure_added_columns(conn)
+
+        # Les skills désactivées avant le champ `skills` (anciennes colonnes enable_*) ne doivent pas
+        # se réactiver au déploiement.
+        async with self._db.session() as session:
+            migrated = await migrate_legacy_skill_flags(session)
+        if migrated:
+            logger.info("réglages de skills migrés", profils=migrated)
 
         self.app = APIRouter()
         self.app.include_router(profile_router(self._db))

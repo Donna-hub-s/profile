@@ -25,6 +25,7 @@ allowed_imports:
   - sqlalchemy
   - pydantic
   - zoneinfo
+  - re
 
 # ── Permissions inter-plugins ────────────────────────────────────────────────
 # Vide = deny_all côté PermissionEngine (même piège que xauth, voir son

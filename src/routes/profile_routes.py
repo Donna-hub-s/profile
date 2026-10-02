@@ -8,6 +8,7 @@ from xcore.kernel.api import AuthPayload, get_current_user
 
 from ..models import Profile
 from ..schemas import ProfileOut, ProfileUpdateRequest
+from ..skills_store import current_skills, merge_skills
 
 
 def _tenant_of(current_user: AuthPayload) -> str:
@@ -29,13 +30,7 @@ def _to_out(profile: Profile) -> ProfileOut:
         theme=profile.theme,
         date_format=profile.date_format,
         measurement_system=profile.measurement_system,
-        enable_web_search=profile.enable_web_search,
-        enable_sub_agents=profile.enable_sub_agents,
-        enable_reminders=profile.enable_reminders,
-        enable_memory=profile.enable_memory,
-        enable_email_calendar=profile.enable_email_calendar,
-        enable_drive=profile.enable_drive,
-        enable_create_document=profile.enable_create_document,
+        skills=current_skills(profile),
         created_at=profile.created_at,
         updated_at=profile.updated_at,
     )
@@ -91,17 +86,12 @@ def profile_router(db) -> APIRouter:
                 "theme",
                 "date_format",
                 "measurement_system",
-                "enable_web_search",
-                "enable_sub_agents",
-                "enable_reminders",
-                "enable_memory",
-                "enable_email_calendar",
-                "enable_drive",
-                "enable_create_document",
             ):
                 value = getattr(body, field)
                 if value is not None:
                     setattr(profile, field, value)
+            if body.skills:
+                merge_skills(profile, body.skills)
             await session.flush()
             return _to_out(profile)
 
