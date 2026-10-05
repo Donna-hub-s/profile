@@ -3,7 +3,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import JSON, Boolean, DateTime, String, UniqueConstraint
+from sqlalchemy import JSON, Boolean, DateTime, Integer, String, UniqueConstraint
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
@@ -56,6 +56,12 @@ class Profile(Base):
     # Branché : voir chat/src/tts.py::Synthesizer (plusieurs voix mises en
     # cache, pas d'état partagé dangereux comme le provider ci-dessus).
     preferred_tts_voice: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    # Locuteur choisi parmi ceux d'une voix multi-locuteurs (fr_FR-upmc-medium : 2,
+    # fr_FR-mls-medium : 125). None = celui du modèle. Ignoré par une voix mono.
+    preferred_tts_speaker: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    # Voix utilisée pour les bouts anglais (tts.lingual_spans). None = celle du serveur ;
+    # "" impossible (None = non choisie). Une voix introuvable fait retomber sur le français.
+    preferred_tts_english_voice: Mapped[str | None] = mapped_column(String(64), nullable=True)
     default_force_web_search: Mapped[bool] = mapped_column(Boolean, default=False)
 
     # ── Notifications de rappel ──────────────────────────────

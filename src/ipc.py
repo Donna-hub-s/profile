@@ -41,6 +41,8 @@ class IPCCommands(AutoDispatchMixin):
                     language=None,
                     preferred_llm_provider=None,
                     preferred_tts_voice=None,
+                    preferred_tts_speaker=None,
+                    preferred_tts_english_voice=None,
                     default_force_web_search=False,
                     notify_reminders_email=False,
                     notify_reminders_whatsapp=False,
@@ -52,6 +54,9 @@ class IPCCommands(AutoDispatchMixin):
                 language=profile.language,
                 preferred_llm_provider=profile.preferred_llm_provider,
                 preferred_tts_voice=profile.preferred_tts_voice,
+                # Le locuteur doit voyager avec la voix : sans lui, le choix serait perdu à chaque tour.
+                preferred_tts_speaker=profile.preferred_tts_speaker,
+                preferred_tts_english_voice=profile.preferred_tts_english_voice,
                 default_force_web_search=profile.default_force_web_search,
                 notify_reminders_email=profile.notify_reminders_email,
                 notify_reminders_whatsapp=profile.notify_reminders_whatsapp,

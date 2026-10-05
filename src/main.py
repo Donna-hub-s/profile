@@ -37,6 +37,12 @@ _ADDED_COLUMNS: tuple[tuple[str, str, str], ...] = (
     ("enable_create_document", "BOOLEAN NOT NULL DEFAULT 1", "BOOLEAN NOT NULL DEFAULT TRUE"),
     # Réglages par skill (remplace les colonnes enable_*). '{}' = tout par défaut.
     ("skills", "JSON NOT NULL DEFAULT '{}'", "JSON NOT NULL DEFAULT '{}'"),
+    # Voix de synthèse. Le nom est validé à l'écriture (schemas.py), le locuteur est un entier
+    # — sans tuile, une base déjà en place n'aurait jamais ces colonnes (create_all ne modifie
+    # pas une table existante).
+    ("preferred_tts_voice", "VARCHAR(64) NULL", "VARCHAR(64) NULL"),
+    ("preferred_tts_speaker", "INTEGER NULL", "INTEGER NULL"),
+    ("preferred_tts_english_voice", "VARCHAR(64) NULL", "VARCHAR(64) NULL"),
 )
 
 

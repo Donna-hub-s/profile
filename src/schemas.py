@@ -14,6 +14,10 @@ class ProfileOut(BaseModel):
     language: str | None = None
     preferred_llm_provider: str | None = None
     preferred_tts_voice: str | None = None
+    # Locuteur d'une voix multi-locuteurs (upmc : 2, mls : 125) ; None = celui du modèle.
+    preferred_tts_speaker: int | None = None
+    # Voix des bouts anglais ; None = celle du serveur (plugin.yaml tts.english_voice).
+    preferred_tts_english_voice: str | None = None
     default_force_web_search: bool = False
     notify_reminders_email: bool = False
     notify_reminders_whatsapp: bool = False
@@ -34,7 +38,15 @@ class ProfileUpdateRequest(BaseModel):
     timezone: str | None = None
     language: str | None = None
     preferred_llm_provider: str | None = None
-    preferred_tts_voice: str | None = None
+    # Nom de modèle Piper. Validé ici plutôt qu'à la synthèse : une faute de frappe est
+    # refusée au bon endroit, et rien d'autre que [A-Za-z0-9_-] n'atteint le nom de fichier
+    # du modèle (chat/src/tts.py::_VOICE_NAME_RE, même motif).
+    preferred_tts_voice: str | None = Field(default=None, max_length=64, pattern=r"^[A-Za-z0-9_-]*$")
+    preferred_tts_speaker: int | None = Field(default=None, ge=0, le=999)
+    # Vide = « pas de voix anglaise choisie » (le serveur décide). Même motif de nom que la voix.
+    preferred_tts_english_voice: str | None = Field(
+        default=None, max_length=64, pattern=r"^[A-Za-z0-9_-]*$"
+    )
     default_force_web_search: bool | None = None
     notify_reminders_email: bool | None = None
     notify_reminders_whatsapp: bool | None = None
