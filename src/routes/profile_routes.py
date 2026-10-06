@@ -12,7 +12,10 @@ from ..skills_store import current_skills, merge_skills
 
 
 def _tenant_of(current_user: AuthPayload) -> str:
-    return (current_user.get("user") or {}).get("tenant_id") or "default"
+    tenant_id = (current_user.get("user") or {}).get("tenant_id")
+    if not tenant_id:
+        raise HTTPException(403, "Aucun espace de travail sélectionné.")
+    return tenant_id
 
 
 def _to_out(profile: Profile) -> ProfileOut:
