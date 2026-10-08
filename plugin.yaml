@@ -37,6 +37,29 @@ permissions:
     actions: ["*"]
     effect: "allow"
 
+# ── RBAC — catalogue des actions IPC ─────────────────────────────────────────
+# Format du bloc `grants` repris de xpulses/plugin.yaml (seul plugin à en avoir un avant celui-ci) : non lu par
+# le kernel (aucune section `rbac:` n'est validée ni appliquée automatiquement aujourd'hui), c'est une
+# documentation à jour du catalogue IPC — chaque permission requise par une action ici vient toujours de
+# `@action(permissions=[...]/permission_groups=[...])` dans le code, jamais l'inverse.
+rbac:
+  grants: []  # aucune permission propre à ce plugin : profile.get est accessible à tout utilisateur authentifié
+  actions:
+    - action: "profile.get"
+      tier: users
+      requires: []
+      description: >
+        Préférences de l'appelant (timezone, voix TTS, recherche web par défaut, skills) — scopé par
+        tenant_id/user_id transmis par l'appelant (chat) depuis le jeton de la requête, jamais une entrée libre.
+        Tout utilisateur authentifié peut lire SES propres préférences : aucun grant élevé à exiger.
+      # ESSAI — preuve du mécanisme ipc_agents.py (voir backend/app/chat/src/ipc_agents.py) sur un vrai plugin :
+      # expose profile.get comme tool d'un sous-agent. Aucun paramètre modèle : tenant_id/user_id suffisent,
+      # injectés par ctx, jamais demandés. À retirer si l'essai ne devient pas un usage réel.
+      agent: "profile_assistant"
+      agent_description: "lit les préférences de l'utilisateur (fuseau horaire, voix, recherche web, skills)."
+      tool_name: "get_my_profile"
+      parameters: {type: object, properties: {}}
+
 resources:
   timeout_seconds: 10
   max_memory_mb: 128
