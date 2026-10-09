@@ -6,6 +6,9 @@ from pydantic import BaseModel, Field, field_validator
 
 from .skills_store import MAX_SKILL_SETTINGS, SKILL_ID_RE
 
+# Thèmes acceptés. "system" suit le réglage du système d'exploitation.
+THEMES = ("system", "light", "dark")
+
 
 class ProfileOut(BaseModel):
     display_name: str | None = None
@@ -56,6 +59,16 @@ class ProfileUpdateRequest(BaseModel):
     measurement_system: str | None = None
     # Fusionné avec les réglages existants (un PATCH ne touche que les skills qu'il nomme).
     skills: dict[str, bool] | None = None
+
+    @field_validator("theme")
+    @classmethod
+    def _valid_theme(cls, value: str | None) -> str | None:
+        """Liste fermée : la valeur ressort telle quelle dans ProfileOut et finit en
+        attribut `data-theme` sur le document (voir frontend/lib/theme.ts). Une chaîne
+        libre n'y correspondrait à aucun sélecteur et casserait le thème en silence."""
+        if value is not None and value not in THEMES:
+            raise ValueError(f"Thème inconnu : {value!r}. Attendu : {', '.join(THEMES)}.")
+        return value
 
     @field_validator("skills")
     @classmethod
