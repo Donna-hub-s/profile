@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TypedDict
 
 from sqlalchemy import select
-from xcore.sdk import AutoDispatchMixin, action, error, ok, validate_payload
+from xcore.sdk import AutoDispatchMixin, action, error, ok, schema
 
 from .models import Profile
 from .skills_store import current_skills
@@ -19,8 +19,14 @@ class IPCCommands(AutoDispatchMixin):
     par d'autres plugins (chat notamment, pour timezone/voix/préférences par
     défaut) sans passer par HTTP. La classe héritante doit fournir self._db."""
 
-    @action("profile.get")
-    @validate_payload(GET_PROFILE_SCHEMA, type_response="model", unset=False)  # type: ignore
+    @action("profile.get", side_effect="read")
+    @schema(
+        version="1.0",
+        input=GET_PROFILE_SCHEMA,
+        description="Préférences de l'appelant (timezone, voix TTS, recherche web par défaut, skills).",
+        type_response="model",
+        unset=False,
+    )  # type: ignore
     async def _ipc_get_profile(self, payload) -> dict:
         """Renvoie les préférences d'un utilisateur, ou les défauts (UTC,
         pas de préférence) si aucun profil n'a encore été créé — jamais

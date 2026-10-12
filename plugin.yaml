@@ -52,13 +52,14 @@ rbac:
         Préférences de l'appelant (timezone, voix TTS, recherche web par défaut, skills) — scopé par
         tenant_id/user_id transmis par l'appelant (chat) depuis le jeton de la requête, jamais une entrée libre.
         Tout utilisateur authentifié peut lire SES propres préférences : aucun grant élevé à exiger.
-      # ESSAI — preuve du mécanisme ipc_agents.py (voir backend/app/chat/src/ipc_agents.py) sur un vrai plugin :
-      # expose profile.get comme tool d'un sous-agent. Aucun paramètre modèle : tenant_id/user_id suffisent,
-      # injectés par ctx, jamais demandés. À retirer si l'essai ne devient pas un usage réel.
+      # ESSAI — preuve du mécanisme extensions/ipc_bridge sur un vrai plugin : expose profile.get comme tool
+      # d'un sous-agent. Paramètres/permissions/risque ne sont PLUS ici : résolus depuis schema_registry
+      # (xcoreruntime >= 2.9.0, voir @action/@schema sur _ipc_get_profile dans app/profile/src/ipc.py) — tenant_id/
+      # user_id sont retirés automatiquement (jamais demandés au modèle, injectés par ctx). À retirer si
+      # l'essai ne devient pas un usage réel.
       agent: "profile_assistant"
       agent_description: "lit les préférences de l'utilisateur (fuseau horaire, voix, recherche web, skills)."
       tool_name: "get_my_profile"
-      parameters: {type: object, properties: {}}
 
 resources:
   timeout_seconds: 10
