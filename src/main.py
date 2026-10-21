@@ -3,7 +3,7 @@ from __future__ import annotations
 from fastapi import APIRouter
 from xcore.sdk import AutoDispatchMixin, TrustedBase, get_logger
 
-from extensions.db_columns import ensure_columns
+from extensions.commons.db_columns import ensure_columns
 from .ipc import IPCCommands
 from .models import Base
 from .routes.profile_routes import profile_router
@@ -23,7 +23,7 @@ logger = get_logger("profile.plugin")
 # pour que les lignes existantes adoptent la valeur par défaut au lieu de
 # NULL. Paire (sqlite, postgres) : Postgres refuse `BOOLEAN DEFAULT 1`
 # (attend TRUE/FALSE), SQLite accepte les deux formes — voir
-# extensions/db_columns.py.
+# extensions/commons/db_columns.py.
 _ADDED_COLUMNS: tuple[tuple[str, str, str], ...] = (
     ("theme", "VARCHAR(16) NOT NULL DEFAULT 'system'", "VARCHAR(16) NOT NULL DEFAULT 'system'"),
     ("date_format", "VARCHAR(16) NOT NULL DEFAULT 'auto'", "VARCHAR(16) NOT NULL DEFAULT 'auto'"),
