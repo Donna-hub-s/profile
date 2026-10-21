@@ -12,7 +12,7 @@ from ..skills_store import current_skills, merge_skills
 
 
 def _tenant_of(current_user: AuthPayload) -> str:
-    tenant_id = (current_user.get("user") or {}).get("tenant_id")
+    tenant_id = current_user.get("tenant_id") or (current_user.get("user") or {}).get("tenant_id")
     if not tenant_id:
         raise HTTPException(403, "Aucun espace de travail sélectionné.")
     return tenant_id
@@ -26,6 +26,8 @@ def _to_out(profile: Profile) -> ProfileOut:
         language=profile.language,
         preferred_llm_provider=profile.preferred_llm_provider,
         preferred_tts_voice=profile.preferred_tts_voice,
+        preferred_tts_speaker=profile.preferred_tts_speaker,
+        preferred_tts_english_voice=profile.preferred_tts_english_voice,
         default_force_web_search=profile.default_force_web_search,
         notify_reminders_email=profile.notify_reminders_email,
         notify_reminders_whatsapp=profile.notify_reminders_whatsapp,
@@ -82,6 +84,8 @@ def profile_router(db) -> APIRouter:
                 "language",
                 "preferred_llm_provider",
                 "preferred_tts_voice",
+                "preferred_tts_speaker",
+                "preferred_tts_english_voice",
                 "default_force_web_search",
                 "notify_reminders_email",
                 "notify_reminders_whatsapp",
